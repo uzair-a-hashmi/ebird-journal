@@ -1,7 +1,10 @@
 import argparse
 import csv
+import requests
+import json
 from os import path
 from datetime import date as dt
+from tabulate import tabulate
 
 def log(species, location, date, notes):
     if not date:
@@ -15,11 +18,29 @@ def log(species, location, date, notes):
 
 
 def history():
-    print("history function triggered")
+    with open("journal.csv") as journal:
+        reader = csv.DictReader(journal)
+        return tabulate(reader, headers="keys", tablefmt="fancy_grid")
 
-def lookup(species):
-    print(f"lookup function triggered for {species}")
+def get_speciescode(common_name):
+    response = requests.get("https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=json")
+    specieslist = response.json()
+    for species in specieslist:
+        if common_name == species["comName"]:
+            return species["speciesCode"]
+    return
 
+
+def lookup(species, regioncode):
+    speciescode = get_speciescode(species)
+    if not speciescode:
+        return
+    api_key = "oalab1htmiag"
+    response = requests.get(f"https://api.ebird.org/v2/data/obs/{regioncode}/recent/{speciescode}?maxResults=10", headers={"x-ebirdapitoken": api_key})
+    observations = response.json()
+    for observation in observations:
+        yield f"⚝ Sighting! {observation["locName"]} at {observation["obsDt"]}"
+    
 def nearby(location):
     print(f"nearby function location triggered for {location}")
 
@@ -42,6 +63,7 @@ def main():
     # lookup command
     parser_lookup = subparsers.add_parser("lookup", help="Look up a species")
     parser_lookup.add_argument("species", help="Species name to look up")
+    parser_lookup.add_argument("--region", help="region code e.g. GB, FR, JP (default: US)", default="US")
     parser_lookup.set_defaults(command="lookup")
 
     # nearby command
@@ -87,6 +109,7 @@ def main():
                             pass
                         else:
                             # makes sure correct number of digits for year, month, and day
+                            # and date is not in the future
                             if len(year) == 4 and len(month) == 2 and len(day) == 2 and difference.days <= 0:
                                 break
                     else:
@@ -107,6 +130,14 @@ def main():
                         return
                     elif choice.lower() == "y":
                         break
+        case "history":
+            if path.exists("journal.csv"):
+                print(history())
+            else:
+                print("Your journal doesn't exist yet! Create one with the log command.")
+        case "lookup":
+            for sighting in lookup(args.species, args.region):
+                print(sighting)
 
 if __name__ == "__main__":
     main()
