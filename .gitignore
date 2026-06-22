@@ -1,0 +1,4 @@
+config.py
+journal.csv
+__pycache__/
+.pytest_cache/

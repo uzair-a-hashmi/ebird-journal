@@ -7,7 +7,9 @@ from urllib.parse import quote_plus
 from os import path
 from datetime import date as dt
 from tabulate import tabulate
+from config import API_KEY
 
+# takes in four values, writes them to csv
 def log(species, location, date, notes):
     if not date:
         date = dt.today()
@@ -18,11 +20,11 @@ def log(species, location, date, notes):
         writer = csv.DictWriter(sightings, ["species name", "location of sighting", "date seen", "notes (optional)"])
         writer.writerow({"species name": species, "location of sighting": location, "date seen": date, "notes (optional)": notes})
 
-
+# 
 def history():
     with open("journal.csv") as journal:
         reader = csv.DictReader(journal)
-        return tabulate(reader, headers="keys", tablefmt="fancy_grid")
+        return tabulate(reader, headers="keys", tablefmt="rounded_grid")
 
 def get_speciescode(common_name):
     response = requests.get("https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=json")
@@ -42,7 +44,7 @@ def lookup(species, regioncode):
     elif not speciescode:
         message = f"'{species}' is not a valid species name (must be common name, check eBird's list of common names)"
     else:
-        api_key = "oalab1htmiag"
+        api_key = API_KEY
         response = requests.get(f"https://api.ebird.org/v2/data/obs/{regioncode.upper()}/recent/{speciescode}?maxResults=10", headers={"x-ebirdapitoken": api_key})
         observations = response.json()
 
@@ -78,7 +80,7 @@ def get_search_results(location):
 
 def nearby(location):
     if search_result := get_search_results(location):
-        api_key = "oalab1htmiag"
+        api_key = API_KEY
         response = requests.get(f"https://api.ebird.org/v2/data/obs/geo/recent?lat={search_result['lat']}&lng={search_result['lon']}&maxResults=10", headers={"x-ebirdapitoken": api_key})
         observations = response.json()
         if observations:
