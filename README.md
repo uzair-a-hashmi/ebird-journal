@@ -4,7 +4,7 @@
 
 #### Description:
 
-This is a journal I made that allows you to log birds you've seen and lookup bird sightings. It's a simple tool I made as my final project for Harvard's CS50P, which I took online. It's for birders like me who dislike context switching and just like having an easy-to-access lookup tool to use in the terminal for looking up recent bird sightings.
+This is a journal I made that allows you to log birds you've seen and lookup bird sightings. It's a simple tool I made as my final project for Harvard's CS50P, which I took online. It's for birders like me who dislike context switching and just want to have an easy-to-access lookup tool to use in the terminal for looking up recent bird sightings.
 
 ## Features
 
@@ -18,7 +18,7 @@ This is a journal I made that allows you to log birds you've seen and lookup bir
 1. Clone the repository:
 
 ```
-git clone https://github.com/YOUR_USERNAME/ebird-journal.git
+git clone https://github.com/uzair-a-hashmi/ebird-journal.git
 cd ebird-journal
 ```
 
